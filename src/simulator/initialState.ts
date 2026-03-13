@@ -40,6 +40,7 @@ export function createInitialMachineState(
     pc: 0,
     program,
     stages: createEmptyPipelineState(),
+    transientResults: {},
     registerFile: createZeroedRegisterFile(),
     memory: {},
     history: [],

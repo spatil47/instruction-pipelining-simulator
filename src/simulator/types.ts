@@ -89,6 +89,7 @@ export interface MachineState {
   pc: number;
   program: Instruction[];
   stages: PipelineState;
+  transientResults: Record<number, number>;
   registerFile: RegisterFile;
   memory: Record<number, number>;
   history: CycleSnapshot[];
