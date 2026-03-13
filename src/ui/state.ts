@@ -7,6 +7,9 @@ import type { ParseError } from "../simulator/parser";
 import { parseProgram } from "../simulator/parser";
 import type { MachineState, SimulationConfig } from "../simulator/types";
 
+/**
+ * Mutable UI session state that orchestrates simulator playback and editing.
+ */
 export interface VisualizerUiState {
   isRunning: boolean;
   tickMs: number;
@@ -22,6 +25,9 @@ function defaultProgramText(): string {
   return DEFAULT_DEMO_PROGRAM.map((i) => i.rawText).join("\n");
 }
 
+/**
+ * Creates the initial UI state bound to a fresh machine.
+ */
 export function createInitialUiState(): VisualizerUiState {
   return {
     isRunning: false,
@@ -34,6 +40,11 @@ export function createInitialUiState(): VisualizerUiState {
   };
 }
 
+/**
+ * Advances the simulation by one cycle while keeping the timeline in live mode.
+ *
+ * @param state Mutable UI state object.
+ */
 export function stepForward(state: VisualizerUiState): void {
   if (isMachineComplete(state.machine)) {
     return;
@@ -44,6 +55,13 @@ export function stepForward(state: VisualizerUiState): void {
   state.selectedCycle = null;
 }
 
+/**
+ * Rebuilds machine state from the current editor program text.
+ *
+ * On parse errors, a safe default program is loaded and diagnostics are kept.
+ *
+ * @param state Mutable UI state object.
+ */
 export function resetSimulation(state: VisualizerUiState): void {
   if (state.intervalId !== null) {
     clearInterval(state.intervalId);
@@ -62,6 +80,11 @@ export function resetSimulation(state: VisualizerUiState): void {
   state.selectedCycle = null;
 }
 
+/**
+ * Starts timed playback until completion or explicit stop.
+ *
+ * @param state Mutable UI state object.
+ */
 export function startPlay(state: VisualizerUiState): void {
   if (state.isRunning || isMachineComplete(state.machine)) return;
   // Playback is always tied to the latest cycle, not a scrubbed historical one.
@@ -75,6 +98,11 @@ export function startPlay(state: VisualizerUiState): void {
   }, state.tickMs);
 }
 
+/**
+ * Stops timed playback and clears any active interval handle.
+ *
+ * @param state Mutable UI state object.
+ */
 export function stopPlay(state: VisualizerUiState): void {
   if (!state.isRunning) return;
   state.isRunning = false;
@@ -84,6 +112,11 @@ export function stopPlay(state: VisualizerUiState): void {
   }
 }
 
+/**
+ * Parses and applies editor program text without mutating machine state on error.
+ *
+ * @param state Mutable UI state object.
+ */
 export function applyProgram(state: VisualizerUiState): void {
   const { instructions, errors } = parseProgram(state.programText);
   state.parseErrors = errors;
@@ -99,6 +132,12 @@ export function applyProgram(state: VisualizerUiState): void {
   state.selectedCycle = null;
 }
 
+/**
+ * Applies a partial runtime config and rebuilds machine history for consistency.
+ *
+ * @param state Mutable UI state object.
+ * @param config Partial simulator config override.
+ */
 export function applyConfig(
   state: VisualizerUiState,
   config: Partial<SimulationConfig>,
