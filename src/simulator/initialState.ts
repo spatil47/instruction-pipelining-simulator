@@ -7,6 +7,9 @@ import type { Instruction, MachineState } from "./types";
 
 // Default demo: shows load-use stall (LW→ADD), MEM→EX forwarding (ADD→ADD),
 // an independent instruction that runs in parallel, and a store.
+/**
+ * Built-in demo program used when no valid user program is supplied.
+ */
 export const DEFAULT_DEMO_PROGRAM: Instruction[] = [
   {
     id: 1,
@@ -50,6 +53,12 @@ export const DEFAULT_DEMO_PROGRAM: Instruction[] = [
   },
 ];
 
+/**
+ * Creates a fresh machine state at cycle 0.
+ *
+ * @param program Program to execute; defaults to the demo sequence.
+ * @returns Fully initialized machine state with empty history and zeroed metrics.
+ */
 export function createInitialMachineState(
   program: Instruction[] = DEFAULT_DEMO_PROGRAM,
 ): MachineState {
