@@ -9,7 +9,7 @@ Build a Vue + TypeScript single-page app that simulates a 5-stage integer pipeli
 - [x] Lock v1 boundaries: 5 stages (IF/ID/EX/MEM/WB), integer ops, educational hazard model, no backend.
 - [x] Define core types for instructions, pipeline stages, register file, memory, hazard events, forwarding events, and cycle snapshots.
 
-- [ ] Phase 2: Deterministic simulation engine
+- [x] Phase 2: Deterministic simulation engine
 - [x] Implement machine-code parser/validator for editable program input.
 - [x] Implement cycle tick order: WB commit, MEM access, EX execute, ID decode/hazard check, IF fetch/PC update.
 - [x] Implement stage advancement, bubble insertion, and stall behavior with immutable snapshot output each cycle.
@@ -17,7 +17,7 @@ Build a Vue + TypeScript single-page app that simulates a 5-stage integer pipeli
 - [x] Implement forwarding paths controlled by toggles.
 - [x] Store full cycle history and derived metrics (CPI, stalls, forwarding count).
 
-- [ ] Phase 3: CPU internals visualization
+- [x] Phase 3: CPU internals visualization
 - [x] Render per-stage instruction occupancy per cycle.
 - [x] Build initial interactive CPU/pipeline snapshot view.
 - [ ] Animate data movement (operand read, ALU result, memory transfer, writeback).
@@ -36,10 +36,10 @@ Build a Vue + TypeScript single-page app that simulates a 5-stage integer pipeli
 - [x] Add legend/onboarding for stage colors, bubbles, and bypass arrows.
 - [x] Ensure responsive behavior on desktop/mobile with readable diagram and controls.
 
-- [ ] Phase 6: Verification
-- [ ] Unit-test parser, stage transitions, hazards, and forwarding.
-- [ ] Add golden cycle-by-cycle scenarios with forwarding on/off.
-- [ ] Verify deterministic replay: stepping and scrubbing always match stored snapshots.
+- [x] Phase 6: Verification
+- [x] Unit-test parser, stage transitions, hazards, and forwarding.
+- [x] Add golden cycle-by-cycle scenarios with forwarding on/off.
+- [x] Verify deterministic replay: stepping and scrubbing always match stored snapshots.
 - [ ] Manual-check control synchronization and datapath highlight correctness.
 - [ ] Validate responsive layout at multiple viewport widths.
 
@@ -69,8 +69,8 @@ Build a Vue + TypeScript single-page app that simulates a 5-stage integer pipeli
 - [x] `feat(ui-timeline): add cycle scrubber bound to history`
 - [x] `feat(ui-overlays): add hazard and forwarding visual overlays`
 - [x] `feat(demo): add default ilp demo program and legend`
-- [ ] `test(core): add parser, hazard, forwarding, and snapshot tests`
-- [ ] `docs(readme): add usage and simulation behavior notes`
+- [x] `test(core): add parser, hazard, forwarding, and snapshot tests`
+- [x] `docs(readme): add usage and simulation behavior notes`
 
 ### Decisions
 
