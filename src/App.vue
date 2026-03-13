@@ -61,14 +61,19 @@ const displayedStages = computed(() =>
 const waterfallRows = computed(() => {
   const history = ui.machine.history;
   if (history.length === 0) return [];
+
+  // History is append-only and cycle-indexed starting at 1. Using direct
+  // index access avoids repeated O(n) lookups while generating dense tables.
   const maxCycle = history[history.length - 1].cycle;
+  const cycleToSnapshot = new Map(history.map((snap) => [snap.cycle, snap]));
+
   return ui.machine.program.map((instr) => {
     const cells: Array<{
       stage: string;
       type: "active" | "bubble" | "stall" | "forward" | "empty";
     }> = [];
     for (let c = 1; c <= maxCycle; c++) {
-      const snap = history.find((s) => s.cycle === c);
+      const snap = cycleToSnapshot.get(c);
       if (!snap) {
         cells.push({ stage: "", type: "empty" });
         continue;
@@ -407,23 +412,31 @@ const displayedCycle = computed(
               <span class="metric-label"
                 ><GlossaryTooltip term="CPI">CPI</GlossaryTooltip></span
               >
-              <span class="metric-value">{{ ui.machine.metrics.cpi.toFixed(2) }}</span>
+              <span class="metric-value">{{
+                ui.machine.metrics.cpi.toFixed(2)
+              }}</span>
             </div>
             <div class="metric-card">
               <span class="metric-label"
                 ><GlossaryTooltip term="stall">Stalls</GlossaryTooltip></span
               >
-              <span class="metric-value">{{ ui.machine.metrics.stallCount }}</span>
+              <span class="metric-value">{{
+                ui.machine.metrics.stallCount
+              }}</span>
             </div>
             <div class="metric-card">
               <span class="metric-label"
                 ><GlossaryTooltip term="bubble">Bubbles</GlossaryTooltip></span
               >
-              <span class="metric-value">{{ ui.machine.metrics.bubbleCount }}</span>
+              <span class="metric-value">{{
+                ui.machine.metrics.bubbleCount
+              }}</span>
             </div>
             <div class="metric-card">
               <span class="metric-label"
-                ><GlossaryTooltip term="forwarding">Forwards</GlossaryTooltip></span
+                ><GlossaryTooltip term="forwarding"
+                  >Forwards</GlossaryTooltip
+                ></span
               >
               <span class="metric-value">{{
                 ui.machine.metrics.forwardingCount
@@ -480,7 +493,11 @@ const displayedCycle = computed(
           <p class="waterfall-hint" aria-hidden="true">
             Swipe horizontally to view more cycles.
           </p>
-          <div class="waterfall-scroll" tabindex="0" aria-label="Scrollable waterfall timeline">
+          <div
+            class="waterfall-scroll"
+            tabindex="0"
+            aria-label="Scrollable waterfall timeline"
+          >
             <table class="waterfall">
               <thead>
                 <tr>
