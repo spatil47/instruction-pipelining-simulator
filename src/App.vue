@@ -201,367 +201,396 @@ const displayedCycle = computed(
       </div>
     </header>
 
-    <!-- Controls -->
-    <section class="controls-bar panel" aria-label="Simulation controls">
-      <div class="controls-left">
-        <button
-          class="btn btn--icon"
-          title="Reset"
-          aria-label="Reset simulation"
-          @click="handleReset"
-        >
-          ⏮
-        </button>
-        <button
-          class="btn btn--icon"
-          title="Step forward"
-          aria-label="Step one cycle"
-          @click="handleStep"
-        >
-          ⏭
-        </button>
-        <button class="btn btn--primary" @click="handlePlayPause">
-          {{ ui.isRunning ? "⏸ Pause" : "▶ Play" }}
-        </button>
-      </div>
-      <div class="controls-speed">
-        <label class="ctrl-label">Speed</label>
-        <input
-          v-model.number="ui.tickMs"
-          type="range"
-          min="80"
-          max="2000"
-          step="40"
-          class="speed-slider"
-        />
-        <span class="speed-val">{{ ui.tickMs }}ms</span>
-      </div>
-      <div class="controls-toggles">
-        <label class="toggle-label">
-          <input
-            type="checkbox"
-            :checked="ui.machine.config.enableForwarding"
-            @change="
-              handleConfigChange(
-                'enableForwarding',
-                ($event.target as HTMLInputElement).checked,
-              )
-            "
-          />
-          <GlossaryTooltip term="enableForwarding">Forwarding</GlossaryTooltip>
-        </label>
-        <label class="toggle-label">
-          <input
-            type="checkbox"
-            :checked="ui.machine.config.detectRawHazards"
-            @change="
-              handleConfigChange(
-                'detectRawHazards',
-                ($event.target as HTMLInputElement).checked,
-              )
-            "
-          />
-          <GlossaryTooltip term="RAW">RAW</GlossaryTooltip> detection
-        </label>
-        <label class="toggle-label">
-          <input
-            type="checkbox"
-            :checked="ui.machine.config.detectLoadUseHazards"
-            @change="
-              handleConfigChange(
-                'detectLoadUseHazards',
-                ($event.target as HTMLInputElement).checked,
-              )
-            "
-          />
-          <GlossaryTooltip term="LOAD_USE">Load-use</GlossaryTooltip> detection
-        </label>
-      </div>
-    </section>
-
-    <!-- Pipeline stages -->
-    <section class="panel">
-      <h2 class="section-title">
-        Pipeline Stages — Cycle {{ displayedCycle }}
-      </h2>
-      <div class="stages-row" role="list" aria-label="Pipeline stages">
-        <template v-for="(row, i) in displayedStages" :key="row.stage">
-          <div
-            class="stage-box"
-            role="listitem"
-            :class="{
-              'stage-box--bubble': row.slot.isBubble,
-              'stage-box--occupied':
-                !row.slot.isBubble && row.slot.instructionId !== null,
-              'stage-box--empty':
-                !row.slot.isBubble && row.slot.instructionId === null,
-              'stage-box--forward': displayedSnapshot?.forwarding.some(
-                (f) => f.toStage === row.stage,
-              ),
-              'stage-box--stall': displayedSnapshot?.hazards.some(
-                (h) => h.stage === row.stage,
-              ),
-            }"
+    <main class="app-main" role="main">
+      <!-- Controls -->
+      <section class="controls-bar panel" aria-label="Simulation controls">
+        <div class="controls-left">
+          <button
+            class="btn btn--icon"
+            title="Reset"
+            aria-label="Reset simulation"
+            @click="handleReset"
           >
-            <GlossaryTooltip :term="row.stage"
-              ><span class="stage-name">{{ row.stage }}</span></GlossaryTooltip
-            >
-            <span class="stage-instr"
-              ><InstructionText :raw-text="row.label"
-            /></span>
-          </div>
-          <div v-if="i < displayedStages.length - 1" class="stage-arrow">→</div>
-        </template>
-      </div>
-
-      <!-- Forwarding / hazard overlays for current display cycle -->
-      <div
-        v-if="
-          displayedSnapshot &&
-          (displayedSnapshot.forwarding.length > 0 ||
-            displayedSnapshot.hazards.length > 0)
-        "
-        class="overlay-tags"
-      >
-        <span
-          v-for="(f, fi) in displayedSnapshot.forwarding"
-          :key="'fwd-' + fi"
-          class="tag tag--fwd"
-        >
-          ↻ FWD {{ f.fromStage }}→{{ f.toStage }}: {{ f.register }}={{
-            f.value
-          }}
-        </span>
-        <span
-          v-for="(h, hi) in displayedSnapshot.hazards"
-          :key="'hz-' + hi"
-          class="tag tag--stall"
-        >
-          ⚠ {{ h.type }}: {{ h.description }}
-        </span>
-      </div>
-    </section>
-
-    <!-- Timeline scrubber -->
-    <section v-if="ui.machine.history.length > 0" class="panel timeline-panel">
-      <h2 class="section-title">Timeline</h2>
-      <div class="scrubber-row">
-        <span class="scrub-label">C1</span>
-        <input
-          v-model.number="scrubberValue"
-          type="range"
-          min="1"
-          :max="scrubberMax"
-          class="scrubber"
-          aria-label="Timeline cycle selector"
-        />
-        <span class="scrub-label">C{{ scrubberMax }}</span>
-        <button
-          type="button"
-          class="scrub-live"
-          :class="{ active: ui.selectedCycle === null }"
-          @click="ui.selectedCycle = null"
-        >
-          LIVE
-        </button>
-      </div>
-    </section>
-
-    <div class="main-grid">
-      <!-- Left: Program editor + metrics -->
-      <div class="left-col">
-        <section class="panel">
-          <h2 class="section-title">Program Editor</h2>
-          <textarea
-            v-model="ui.programText"
-            class="program-editor"
-            spellcheck="false"
-            rows="10"
-            placeholder="LW R1, 0(R0)&#10;ADD R2, R1, R3"
-          ></textarea>
-          <div v-if="ui.parseErrors.length > 0" class="parse-errors">
-            <div
-              v-for="err in ui.parseErrors"
-              :key="err.line"
-              class="parse-error"
-            >
-              Line {{ err.line }}: {{ err.message }}
-            </div>
-          </div>
-          <button class="btn btn--apply" @click="handleApplyProgram">
-            Apply &amp; Reset
+            ⏮
           </button>
-        </section>
-
-        <section class="panel">
-          <h2 class="section-title">Metrics</h2>
-          <div class="metrics-cards">
-            <div class="metric-card">
-              <span class="metric-label">Cycles</span>
-              <span class="metric-value">{{ ui.machine.metrics.cycles }}</span>
-            </div>
-            <div class="metric-card">
-              <span class="metric-label"
-                ><GlossaryTooltip term="CPI">Committed</GlossaryTooltip></span
-              >
-              <span class="metric-value">{{
-                ui.machine.metrics.committedInstructions
-              }}</span>
-            </div>
-            <div class="metric-card">
-              <span class="metric-label"
-                ><GlossaryTooltip term="CPI">CPI</GlossaryTooltip></span
-              >
-              <span class="metric-value">{{
-                ui.machine.metrics.cpi.toFixed(2)
-              }}</span>
-            </div>
-            <div class="metric-card">
-              <span class="metric-label"
-                ><GlossaryTooltip term="stall">Stalls</GlossaryTooltip></span
-              >
-              <span class="metric-value">{{
-                ui.machine.metrics.stallCount
-              }}</span>
-            </div>
-            <div class="metric-card">
-              <span class="metric-label"
-                ><GlossaryTooltip term="bubble">Bubbles</GlossaryTooltip></span
-              >
-              <span class="metric-value">{{
-                ui.machine.metrics.bubbleCount
-              }}</span>
-            </div>
-            <div class="metric-card">
-              <span class="metric-label"
-                ><GlossaryTooltip term="forwarding"
-                  >Forwards</GlossaryTooltip
-                ></span
-              >
-              <span class="metric-value">{{
-                ui.machine.metrics.forwardingCount
-              }}</span>
-            </div>
-          </div>
-        </section>
-
-        <!-- Legend -->
-        <section class="panel">
-          <h2 class="section-title">Legend</h2>
-          <ul class="legend">
-            <li>
-              <span class="swatch swatch--occupied"></span> Active instruction
-            </li>
-            <li>
-              <span class="swatch swatch--bubble"></span>
-              <GlossaryTooltip term="bubble">Bubble</GlossaryTooltip> (inserted
-              stall)
-            </li>
-            <li><span class="swatch swatch--empty"></span> Empty stage</li>
-            <li>
-              <span class="swatch swatch--forward"></span>
-              <GlossaryTooltip term="forwarding">Forwarding</GlossaryTooltip>
-              destination
-            </li>
-            <li>
-              <span class="swatch swatch--stall"></span>
-              <GlossaryTooltip term="stall">Stall</GlossaryTooltip> detected
-              here
-            </li>
-            <li>
-              <span class="tag tag--fwd" style="font-size: 0.7rem">FWD</span>
-              <GlossaryTooltip term="MEM_EX_Forward"
-                >MEM→EX bypass</GlossaryTooltip
-              >
-            </li>
-            <li>
-              <span class="tag tag--stall" style="font-size: 0.7rem"
-                >STALL</span
-              >
-              <GlossaryTooltip term="RAW">RAW</GlossaryTooltip> /
-              <GlossaryTooltip term="LOAD_USE">load-use</GlossaryTooltip> stall
-            </li>
-          </ul>
-        </section>
-      </div>
-
-      <!-- Right: Waterfall timeline + state -->
-      <div class="right-col">
-        <!-- Cycle waterfall diagram -->
-        <section class="panel" v-if="waterfallRows.length > 0">
-          <h2 class="section-title">Pipeline Waterfall</h2>
-          <p class="waterfall-hint" aria-hidden="true">
-            Swipe horizontally to view more cycles.
-          </p>
-          <div
-            class="waterfall-scroll"
-            tabindex="0"
-            aria-label="Scrollable waterfall timeline"
+          <button
+            class="btn btn--icon"
+            title="Step forward"
+            aria-label="Step one cycle"
+            @click="handleStep"
           >
-            <table class="waterfall">
-              <thead>
-                <tr>
-                  <th class="wf-instr-col">Instruction</th>
-                  <th
-                    v-for="c in cycleNumbers"
-                    :key="c"
-                    class="wf-cycle-col"
-                    :class="{ 'wf-selected': c === displayedCycle }"
-                  >
-                    {{ c }}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="row in waterfallRows" :key="row.instr.id">
-                  <td class="wf-instr-label" :title="row.instr.rawText">
-                    <InstructionText :raw-text="row.instr.rawText" />
-                  </td>
-                  <td
-                    v-for="(cell, ci) in row.cells"
-                    :key="ci"
-                    class="wf-cell"
-                    :class="{
-                      'wf-active': cell.type === 'active',
-                      'wf-bubble': cell.type === 'bubble',
-                      'wf-stall': cell.type === 'stall',
-                      'wf-forward': cell.type === 'forward',
-                    }"
-                    :title="cell.stage || ''"
-                  >
-                    <GlossaryTooltip v-if="cell.stage" :term="cell.stage">{{
-                      cell.stage
-                    }}</GlossaryTooltip>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
+            ⏭
+          </button>
+          <button class="btn btn--primary" @click="handlePlayPause">
+            {{ ui.isRunning ? "⏸ Pause" : "▶ Play" }}
+          </button>
+        </div>
+        <div class="controls-speed">
+          <label class="ctrl-label">Speed</label>
+          <input
+            v-model.number="ui.tickMs"
+            type="range"
+            min="80"
+            max="2000"
+            step="40"
+            class="speed-slider"
+          />
+          <span class="speed-val">{{ ui.tickMs }}ms</span>
+        </div>
+        <div class="controls-toggles">
+          <label class="toggle-label">
+            <input
+              type="checkbox"
+              :checked="ui.machine.config.enableForwarding"
+              @change="
+                handleConfigChange(
+                  'enableForwarding',
+                  ($event.target as HTMLInputElement).checked,
+                )
+              "
+            />
+            <GlossaryTooltip term="enableForwarding"
+              >Forwarding</GlossaryTooltip
+            >
+          </label>
+          <label class="toggle-label">
+            <input
+              type="checkbox"
+              :checked="ui.machine.config.detectRawHazards"
+              @change="
+                handleConfigChange(
+                  'detectRawHazards',
+                  ($event.target as HTMLInputElement).checked,
+                )
+              "
+            />
+            <GlossaryTooltip term="RAW">RAW</GlossaryTooltip> detection
+          </label>
+          <label class="toggle-label">
+            <input
+              type="checkbox"
+              :checked="ui.machine.config.detectLoadUseHazards"
+              @change="
+                handleConfigChange(
+                  'detectLoadUseHazards',
+                  ($event.target as HTMLInputElement).checked,
+                )
+              "
+            />
+            <GlossaryTooltip term="LOAD_USE">Load-use</GlossaryTooltip>
+            detection
+          </label>
+        </div>
+      </section>
 
-        <!-- Register file -->
-        <section class="panel">
-          <h2 class="section-title">Register File</h2>
-          <div v-if="nonZeroRegisters.length === 0" class="empty-state">
-            All registers are zero.
-          </div>
-          <div v-else class="reg-grid">
-            <div v-for="r in nonZeroRegisters" :key="r.name" class="reg-entry">
-              <span class="reg-name">{{ r.name }}</span>
-              <span class="reg-val">{{ r.value }}</span>
+      <!-- Pipeline stages -->
+      <section class="panel">
+        <h2 class="section-title">
+          Pipeline Stages — Cycle {{ displayedCycle }}
+        </h2>
+        <div class="stages-row" role="list" aria-label="Pipeline stages">
+          <template v-for="(row, i) in displayedStages" :key="row.stage">
+            <div
+              class="stage-box"
+              role="listitem"
+              :class="{
+                'stage-box--bubble': row.slot.isBubble,
+                'stage-box--occupied':
+                  !row.slot.isBubble && row.slot.instructionId !== null,
+                'stage-box--empty':
+                  !row.slot.isBubble && row.slot.instructionId === null,
+                'stage-box--forward': displayedSnapshot?.forwarding.some(
+                  (f) => f.toStage === row.stage,
+                ),
+                'stage-box--stall': displayedSnapshot?.hazards.some(
+                  (h) => h.stage === row.stage,
+                ),
+              }"
+            >
+              <GlossaryTooltip :term="row.stage"
+                ><span class="stage-name">{{
+                  row.stage
+                }}</span></GlossaryTooltip
+              >
+              <span class="stage-instr"
+                ><InstructionText :raw-text="row.label"
+              /></span>
             </div>
-          </div>
-        </section>
+            <div v-if="i < displayedStages.length - 1" class="stage-arrow">
+              →
+            </div>
+          </template>
+        </div>
 
-        <!-- Event log -->
-        <section class="panel" v-if="eventLog.length > 0">
-          <h2 class="section-title">Event Log</h2>
-          <ul class="event-log">
-            <EventLogEntry v-for="(ev, i) in eventLog" :key="i" :ev="ev" />
-          </ul>
-        </section>
+        <!-- Forwarding / hazard overlays for current display cycle -->
+        <div
+          v-if="
+            displayedSnapshot &&
+            (displayedSnapshot.forwarding.length > 0 ||
+              displayedSnapshot.hazards.length > 0)
+          "
+          class="overlay-tags"
+        >
+          <span
+            v-for="(f, fi) in displayedSnapshot.forwarding"
+            :key="'fwd-' + fi"
+            class="tag tag--fwd"
+          >
+            ↻ FWD {{ f.fromStage }}→{{ f.toStage }}: {{ f.register }}={{
+              f.value
+            }}
+          </span>
+          <span
+            v-for="(h, hi) in displayedSnapshot.hazards"
+            :key="'hz-' + hi"
+            class="tag tag--stall"
+          >
+            ⚠ {{ h.type }}: {{ h.description }}
+          </span>
+        </div>
+      </section>
+
+      <!-- Timeline scrubber -->
+      <section
+        v-if="ui.machine.history.length > 0"
+        class="panel timeline-panel"
+      >
+        <h2 class="section-title">Timeline</h2>
+        <div class="scrubber-row">
+          <span class="scrub-label">C1</span>
+          <input
+            v-model.number="scrubberValue"
+            type="range"
+            min="1"
+            :max="scrubberMax"
+            class="scrubber"
+            aria-label="Timeline cycle selector"
+          />
+          <span class="scrub-label">C{{ scrubberMax }}</span>
+          <button
+            type="button"
+            class="scrub-live"
+            :class="{ active: ui.selectedCycle === null }"
+            @click="ui.selectedCycle = null"
+          >
+            LIVE
+          </button>
+        </div>
+      </section>
+
+      <div class="main-grid">
+        <!-- Left: Program editor + metrics -->
+        <div class="left-col">
+          <section class="panel">
+            <h2 class="section-title">Program Editor</h2>
+            <textarea
+              v-model="ui.programText"
+              class="program-editor"
+              spellcheck="false"
+              rows="10"
+              placeholder="LW R1, 0(R0)&#10;ADD R2, R1, R3"
+            ></textarea>
+            <div v-if="ui.parseErrors.length > 0" class="parse-errors">
+              <div
+                v-for="err in ui.parseErrors"
+                :key="err.line"
+                class="parse-error"
+              >
+                Line {{ err.line }}: {{ err.message }}
+              </div>
+            </div>
+            <button class="btn btn--apply" @click="handleApplyProgram">
+              Apply &amp; Reset
+            </button>
+          </section>
+
+          <section class="panel">
+            <h2 class="section-title">Metrics</h2>
+            <div class="metrics-cards">
+              <div class="metric-card">
+                <span class="metric-label">Cycles</span>
+                <span class="metric-value">{{
+                  ui.machine.metrics.cycles
+                }}</span>
+              </div>
+              <div class="metric-card">
+                <span class="metric-label"
+                  ><GlossaryTooltip term="CPI">Committed</GlossaryTooltip></span
+                >
+                <span class="metric-value">{{
+                  ui.machine.metrics.committedInstructions
+                }}</span>
+              </div>
+              <div class="metric-card">
+                <span class="metric-label"
+                  ><GlossaryTooltip term="CPI">CPI</GlossaryTooltip></span
+                >
+                <span class="metric-value">{{
+                  ui.machine.metrics.cpi.toFixed(2)
+                }}</span>
+              </div>
+              <div class="metric-card">
+                <span class="metric-label"
+                  ><GlossaryTooltip term="stall">Stalls</GlossaryTooltip></span
+                >
+                <span class="metric-value">{{
+                  ui.machine.metrics.stallCount
+                }}</span>
+              </div>
+              <div class="metric-card">
+                <span class="metric-label"
+                  ><GlossaryTooltip term="bubble"
+                    >Bubbles</GlossaryTooltip
+                  ></span
+                >
+                <span class="metric-value">{{
+                  ui.machine.metrics.bubbleCount
+                }}</span>
+              </div>
+              <div class="metric-card">
+                <span class="metric-label"
+                  ><GlossaryTooltip term="forwarding"
+                    >Forwards</GlossaryTooltip
+                  ></span
+                >
+                <span class="metric-value">{{
+                  ui.machine.metrics.forwardingCount
+                }}</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Legend -->
+          <section class="panel">
+            <h2 class="section-title">Legend</h2>
+            <ul class="legend">
+              <li>
+                <span class="swatch swatch--occupied"></span> Active instruction
+              </li>
+              <li>
+                <span class="swatch swatch--bubble"></span>
+                <GlossaryTooltip term="bubble">Bubble</GlossaryTooltip>
+                (inserted stall)
+              </li>
+              <li><span class="swatch swatch--empty"></span> Empty stage</li>
+              <li>
+                <span class="swatch swatch--forward"></span>
+                <GlossaryTooltip term="forwarding">Forwarding</GlossaryTooltip>
+                destination
+              </li>
+              <li>
+                <span class="swatch swatch--stall"></span>
+                <GlossaryTooltip term="stall">Stall</GlossaryTooltip> detected
+                here
+              </li>
+              <li>
+                <span class="tag tag--fwd" style="font-size: 0.7rem">FWD</span>
+                <GlossaryTooltip term="MEM_EX_Forward"
+                  >MEM→EX bypass</GlossaryTooltip
+                >
+              </li>
+              <li>
+                <span class="tag tag--stall" style="font-size: 0.7rem"
+                  >STALL</span
+                >
+                <GlossaryTooltip term="RAW">RAW</GlossaryTooltip> /
+                <GlossaryTooltip term="LOAD_USE">load-use</GlossaryTooltip>
+                stall
+              </li>
+            </ul>
+          </section>
+        </div>
+
+        <!-- Right: Waterfall timeline + state -->
+        <div class="right-col">
+          <!-- Cycle waterfall diagram -->
+          <section class="panel" v-if="waterfallRows.length > 0">
+            <h2 class="section-title">Pipeline Waterfall</h2>
+            <p class="waterfall-hint" aria-hidden="true">
+              Swipe horizontally to view more cycles.
+            </p>
+            <div
+              class="waterfall-scroll"
+              tabindex="0"
+              aria-label="Scrollable waterfall timeline"
+            >
+              <table class="waterfall">
+                <caption class="sr-only">
+                  Pipeline progression by cycle and stage per instruction
+                </caption>
+                <thead>
+                  <tr>
+                    <th class="wf-instr-col" scope="col">Instruction</th>
+                    <th
+                      v-for="c in cycleNumbers"
+                      :key="c"
+                      class="wf-cycle-col"
+                      :class="{ 'wf-selected': c === displayedCycle }"
+                      scope="col"
+                    >
+                      {{ c }}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="row in waterfallRows" :key="row.instr.id">
+                    <th
+                      class="wf-instr-label"
+                      scope="row"
+                      :title="row.instr.rawText"
+                    >
+                      <InstructionText :raw-text="row.instr.rawText" />
+                    </th>
+                    <td
+                      v-for="(cell, ci) in row.cells"
+                      :key="ci"
+                      class="wf-cell"
+                      :class="{
+                        'wf-active': cell.type === 'active',
+                        'wf-bubble': cell.type === 'bubble',
+                        'wf-stall': cell.type === 'stall',
+                        'wf-forward': cell.type === 'forward',
+                      }"
+                      :title="cell.stage || ''"
+                    >
+                      <GlossaryTooltip v-if="cell.stage" :term="cell.stage">{{
+                        cell.stage
+                      }}</GlossaryTooltip>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- Register file -->
+          <section class="panel">
+            <h2 class="section-title">Register File</h2>
+            <div v-if="nonZeroRegisters.length === 0" class="empty-state">
+              All registers are zero.
+            </div>
+            <div v-else class="reg-grid">
+              <div
+                v-for="r in nonZeroRegisters"
+                :key="r.name"
+                class="reg-entry"
+              >
+                <span class="reg-name">{{ r.name }}</span>
+                <span class="reg-val">{{ r.value }}</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Event log -->
+          <section class="panel" v-if="eventLog.length > 0">
+            <h2 class="section-title">Event Log</h2>
+            <ul class="event-log">
+              <EventLogEntry v-for="(ev, i) in eventLog" :key="i" :ev="ev" />
+            </ul>
+          </section>
+        </div>
       </div>
-    </div>
+    </main>
     <GlossaryPanel />
   </div>
 </template>
@@ -582,6 +611,23 @@ const displayedCycle = computed(
   display: grid;
   gap: var(--space-2);
   overflow-x: clip;
+}
+
+.app-main {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* Header */
