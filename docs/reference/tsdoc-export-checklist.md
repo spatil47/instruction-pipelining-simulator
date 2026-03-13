@@ -5,59 +5,59 @@ This checklist tracks contract-level TSDoc/JSDoc coverage for every exported sym
 ## Simulator
 
 ### src/simulator/config.ts
-- [ ] DEFAULT_SIMULATION_CONFIG
-- [ ] createEmptyStage
-- [ ] createEmptyPipelineState
-- [ ] createZeroedRegisterFile
+- [x] DEFAULT_SIMULATION_CONFIG
+- [x] createEmptyStage
+- [x] createEmptyPipelineState
+- [x] createZeroedRegisterFile
 
 ### src/simulator/types.ts
-- [ ] PIPELINE_STAGES
-- [ ] PipelineStage
-- [ ] Opcode
-- [ ] RegisterName
-- [ ] Instruction
-- [ ] StageState
-- [ ] PipelineState
-- [ ] RegisterFile
-- [ ] HazardEvent
-- [ ] ForwardingEvent
-- [ ] MemoryDelta
-- [ ] CycleSnapshot
-- [ ] DerivedMetrics
-- [ ] SimulationConfig
-- [ ] MachineState
+- [x] PIPELINE_STAGES
+- [x] PipelineStage
+- [x] Opcode
+- [x] RegisterName
+- [x] Instruction
+- [x] StageState
+- [x] PipelineState
+- [x] RegisterFile
+- [x] HazardEvent
+- [x] ForwardingEvent
+- [x] MemoryDelta
+- [x] CycleSnapshot
+- [x] DerivedMetrics
+- [x] SimulationConfig
+- [x] MachineState
 
 ### src/simulator/parser.ts
-- [ ] ParseError
-- [ ] ParseProgramResult
-- [ ] parseProgram
+- [x] ParseError
+- [x] ParseProgramResult
+- [x] parseProgram
 
 ### src/simulator/engine.ts
-- [ ] isMachineComplete
-- [ ] tickMachine
+- [x] isMachineComplete
+- [x] tickMachine
 
 ### src/simulator/initialState.ts
-- [ ] DEFAULT_DEMO_PROGRAM
-- [ ] createInitialMachineState
+- [x] DEFAULT_DEMO_PROGRAM
+- [x] createInitialMachineState
 
 ## UI
 
 ### src/ui/state.ts
-- [ ] VisualizerUiState
-- [ ] createInitialUiState
-- [ ] stepForward
-- [ ] resetSimulation
-- [ ] startPlay
-- [ ] stopPlay
-- [ ] applyProgram
-- [ ] applyConfig
+- [x] VisualizerUiState
+- [x] createInitialUiState
+- [x] stepForward
+- [x] resetSimulation
+- [x] startPlay
+- [x] stopPlay
+- [x] applyProgram
+- [x] applyConfig
 
 ### src/ui/glossary.ts
-- [ ] GlossaryEntry
-- [ ] default glossary export
+- [x] GlossaryEntry
+- [x] default glossary export
 
 ### src/ui/useGlossary.ts
-- [ ] useGlossary
+- [x] useGlossary
 
 ## Verification Notes
 - Contract format is concise and focused on public behavior.
