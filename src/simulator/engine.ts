@@ -103,6 +103,7 @@ function applyWriteBack(
   registerFile: RegisterFile,
   transientResults: Record<number, number>,
 ): void {
+  // Only instructions with register destinations participate in write-back.
   if (!instruction.dst) {
     return;
   }
@@ -173,6 +174,12 @@ function getWrittenRegister(instruction: Instruction | null): string | null {
   return instruction.dst;
 }
 
+/**
+ * Returns true when program fetch is exhausted and all pipeline slots are empty.
+ *
+ * @param machine Full machine state to inspect.
+ * @returns Whether simulation can stop without dropping in-flight instructions.
+ */
 export function isMachineComplete(machine: MachineState): boolean {
   const isProgramExhausted = machine.pc >= machine.program.length;
   const hasInFlightInstruction = Object.values(machine.stages).some(
@@ -181,6 +188,16 @@ export function isMachineComplete(machine: MachineState): boolean {
   return isProgramExhausted && !hasInFlightInstruction;
 }
 
+/**
+ * Advances the simulator by one deterministic cycle.
+ *
+ * Cycle order is fixed: write-back, memory, execute, hazard checks, then stage
+ * transitions/metrics. The input state is treated as immutable and a new state
+ * object is returned.
+ *
+ * @param current Current machine snapshot.
+ * @returns Next machine snapshot after one clock tick.
+ */
 export function tickMachine(current: MachineState): MachineState {
   const nextCycle = current.cycle + 1;
   const nextRegisterFile = cloneRegisterFile(current.registerFile);
@@ -194,6 +211,7 @@ export function tickMachine(current: MachineState): MachineState {
     current.program,
     current.stages.WB.instructionId,
   );
+  // Commit first so ID-stage hazard analysis observes WB writes as already visible.
   if (wbInstruction) {
     applyWriteBack(wbInstruction, nextRegisterFile, nextTransientResults);
     delete nextTransientResults[wbInstruction.id];
