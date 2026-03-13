@@ -16,9 +16,9 @@ const parts = computed(() => {
   const tagMatch = text.match(/^(C\d+\s)\[([^\]]+)\](.*)$/);
   if (!tagMatch) return [{ type: "plain" as const, text }];
 
-  const prefix = tagMatch[1];   // e.g. "C3 "
-  const tag = tagMatch[2];      // e.g. "RAW" | "LOAD_USE" | "FWD"
-  const rest = tagMatch[3];     // remainder of the message
+  const prefix = tagMatch[1]; // e.g. "C3 "
+  const tag = tagMatch[2]; // e.g. "RAW" | "LOAD_USE" | "FWD"
+  const rest = tagMatch[3]; // remainder of the message
 
   // Map tag to glossary key
   const glossaryKey: Record<string, string> = {

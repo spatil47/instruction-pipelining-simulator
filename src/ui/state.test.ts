@@ -14,7 +14,9 @@ function makeProgram(lines: string): Instruction[] {
   return instructions;
 }
 
-function stepUntilComplete(maxSteps: number): ReturnType<typeof createInitialUiState> {
+function stepUntilComplete(
+  maxSteps: number,
+): ReturnType<typeof createInitialUiState> {
   const state = createInitialUiState();
   state.machine = createInitialMachineState(makeProgram("ADD R1, R2, R3"));
 

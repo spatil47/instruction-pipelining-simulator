@@ -27,7 +27,9 @@ const parsed = computed(() => {
       <span class="instr-opcode">{{ parsed.opcode }}</span>
     </GlossaryTooltip>
     <span v-else class="instr-opcode">{{ parsed.opcode }}</span>
-    <span v-if="parsed.operands" class="instr-operands">{{ parsed.operands }}</span>
+    <span v-if="parsed.operands" class="instr-operands">{{
+      parsed.operands
+    }}</span>
   </span>
 </template>
 

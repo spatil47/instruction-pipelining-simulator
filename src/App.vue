@@ -287,8 +287,12 @@ const displayedCycle = computed(
               ),
             }"
           >
-            <GlossaryTooltip :term="row.stage"><span class="stage-name">{{ row.stage }}</span></GlossaryTooltip>
-            <span class="stage-instr"><InstructionText :raw-text="row.label" /></span>
+            <GlossaryTooltip :term="row.stage"
+              ><span class="stage-name">{{ row.stage }}</span></GlossaryTooltip
+            >
+            <span class="stage-instr"
+              ><InstructionText :raw-text="row.label"
+            /></span>
           </div>
           <div v-if="i < displayedStages.length - 1" class="stage-arrow">→</div>
         </template>
@@ -383,7 +387,9 @@ const displayedCycle = computed(
             <dd>{{ ui.machine.metrics.stallCount }}</dd>
             <dt><GlossaryTooltip term="bubble">Bubbles</GlossaryTooltip></dt>
             <dd>{{ ui.machine.metrics.bubbleCount }}</dd>
-            <dt><GlossaryTooltip term="forwarding">Forwards</GlossaryTooltip></dt>
+            <dt>
+              <GlossaryTooltip term="forwarding">Forwards</GlossaryTooltip>
+            </dt>
             <dd>{{ ui.machine.metrics.forwardingCount }}</dd>
           </dl>
         </section>
@@ -397,24 +403,32 @@ const displayedCycle = computed(
             </li>
             <li>
               <span class="swatch swatch--bubble"></span>
-              <GlossaryTooltip term="bubble">Bubble</GlossaryTooltip> (inserted stall)
+              <GlossaryTooltip term="bubble">Bubble</GlossaryTooltip> (inserted
+              stall)
             </li>
             <li><span class="swatch swatch--empty"></span> Empty stage</li>
             <li>
               <span class="swatch swatch--forward"></span>
-              <GlossaryTooltip term="forwarding">Forwarding</GlossaryTooltip> destination
+              <GlossaryTooltip term="forwarding">Forwarding</GlossaryTooltip>
+              destination
             </li>
             <li>
               <span class="swatch swatch--stall"></span>
-              <GlossaryTooltip term="stall">Stall</GlossaryTooltip> detected here
+              <GlossaryTooltip term="stall">Stall</GlossaryTooltip> detected
+              here
             </li>
             <li>
               <span class="tag tag--fwd" style="font-size: 0.7rem">FWD</span>
-              <GlossaryTooltip term="MEM_EX_Forward">MEM→EX bypass</GlossaryTooltip>
+              <GlossaryTooltip term="MEM_EX_Forward"
+                >MEM→EX bypass</GlossaryTooltip
+              >
             </li>
             <li>
-              <span class="tag tag--stall" style="font-size: 0.7rem">STALL</span>
-              <GlossaryTooltip term="RAW">RAW</GlossaryTooltip> / <GlossaryTooltip term="LOAD_USE">load-use</GlossaryTooltip> stall
+              <span class="tag tag--stall" style="font-size: 0.7rem"
+                >STALL</span
+              >
+              <GlossaryTooltip term="RAW">RAW</GlossaryTooltip> /
+              <GlossaryTooltip term="LOAD_USE">load-use</GlossaryTooltip> stall
             </li>
           </ul>
         </section>
@@ -457,7 +471,9 @@ const displayedCycle = computed(
                     }"
                     :title="cell.stage || ''"
                   >
-                    <GlossaryTooltip v-if="cell.stage" :term="cell.stage">{{ cell.stage }}</GlossaryTooltip>
+                    <GlossaryTooltip v-if="cell.stage" :term="cell.stage">{{
+                      cell.stage
+                    }}</GlossaryTooltip>
                   </td>
                 </tr>
               </tbody>
@@ -483,11 +499,7 @@ const displayedCycle = computed(
         <section class="panel" v-if="eventLog.length > 0">
           <h2 class="section-title">Event Log</h2>
           <ul class="event-log">
-            <EventLogEntry
-              v-for="(ev, i) in eventLog"
-              :key="i"
-              :ev="ev"
-            />
+            <EventLogEntry v-for="(ev, i) in eventLog" :key="i" :ev="ev" />
           </ul>
         </section>
       </div>

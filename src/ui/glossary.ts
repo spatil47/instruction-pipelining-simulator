@@ -33,7 +33,15 @@ const glossary: Record<string, GlossaryEntry> = {
       "The Instruction Decode stage decodes the opcode and function fields to generate control signals for the EX, MEM, and WB stages. It simultaneously reads both source operands (rs, rt) from the register file. Hazard detection logic in this stage checks for RAW and load-use hazards. If a load-use hazard is detected, a bubble is injected and the pipeline is stalled for one cycle.",
     diagram: `IF/ID ──► [ Decoder ]  ──► ID/EX register
                      ──► [ RegFile ] ──► rs_val, rt_val`,
-    relatedTerms: ["IF", "EX", "RAW", "LOAD_USE", "RegisterFile", "stall", "bubble"],
+    relatedTerms: [
+      "IF",
+      "EX",
+      "RAW",
+      "LOAD_USE",
+      "RegisterFile",
+      "stall",
+      "bubble",
+    ],
   },
 
   EX: {
@@ -154,7 +162,14 @@ const glossary: Record<string, GlossaryEntry> = {
     diagram: `EX:  addr = R0 + 4
 MEM: R1 = Memory[addr]   ← data read here
 WB:  RegFile[R1] = R1    ← earliest write-back`,
-    relatedTerms: ["SW", "LOAD_USE", "stall", "forwarding", "I-type", "MemoryFormat"],
+    relatedTerms: [
+      "SW",
+      "LOAD_USE",
+      "stall",
+      "forwarding",
+      "I-type",
+      "MemoryFormat",
+    ],
   },
 
   SW: {
@@ -277,7 +292,16 @@ WB:  RegFile[R1] = R1    ← earliest write-back`,
 I1:    [IF] [ID] [EX] [MEM][WB]
 I2:         [IF] [ID] [EX] [MEM][WB]
 I3:              [IF] [ID] [EX] [MEM][WB]`,
-    relatedTerms: ["IF", "ID", "EX", "MEM", "WB", "stall", "bubble", "forwarding"],
+    relatedTerms: [
+      "IF",
+      "ID",
+      "EX",
+      "MEM",
+      "WB",
+      "stall",
+      "bubble",
+      "forwarding",
+    ],
   },
 
   ILP: {
@@ -371,7 +395,8 @@ I3:              [IF] [ID] [EX] [MEM][WB]`,
       "Two-register plus 16-bit immediate instruction format used for arithmetic-with-constant and memory access.",
     definition:
       "I-type (Immediate-type) instructions use a 16-bit immediate field embedded in the instruction word instead of a third register specifier. The two register fields are rs (source / base) and rt (destination for loads / source for stores). In this simulator the I-type opcodes are ADDI, LW, and SW.",
-    syntax: "OPCODE rt, rs, imm   (arithmetic)\nOPCODE rt, offset(rs)  (memory)",
+    syntax:
+      "OPCODE rt, rs, imm   (arithmetic)\nOPCODE rt, offset(rs)  (memory)",
     example: "ADDI R2, R1, 10\nLW   R3, 8(R0)",
     relatedTerms: ["ADDI", "LW", "SW", "R-type", "immediate", "MemoryFormat"],
   },

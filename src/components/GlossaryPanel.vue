@@ -4,7 +4,9 @@ import { useGlossary } from "../ui/useGlossary";
 
 const { activeTerm, setActiveTerm, getEntry } = useGlossary();
 
-const entry = computed(() => (activeTerm.value ? getEntry(activeTerm.value) : null));
+const entry = computed(() =>
+  activeTerm.value ? getEntry(activeTerm.value) : null,
+);
 const isOpen = computed(() => !!entry.value);
 
 function close() {
@@ -21,13 +23,24 @@ onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
 
 <template>
   <Transition name="panel-slide">
-    <aside v-if="isOpen && entry" class="glossary-panel" role="complementary" aria-label="Glossary">
+    <aside
+      v-if="isOpen && entry"
+      class="glossary-panel"
+      role="complementary"
+      aria-label="Glossary"
+    >
       <div class="panel-header">
         <div class="panel-title-area">
           <span class="panel-term">{{ entry.term }}</span>
           <span class="panel-category-badge">{{ entry.category }}</span>
         </div>
-        <button class="panel-close" aria-label="Close glossary panel" @click="close">✕</button>
+        <button
+          class="panel-close"
+          aria-label="Close glossary panel"
+          @click="close"
+        >
+          ✕
+        </button>
       </div>
 
       <div class="panel-body">
@@ -51,7 +64,10 @@ onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
           <pre class="panel-diagram">{{ entry.diagram }}</pre>
         </section>
 
-        <section v-if="entry.relatedTerms && entry.relatedTerms.length > 0" class="panel-section">
+        <section
+          v-if="entry.relatedTerms && entry.relatedTerms.length > 0"
+          class="panel-section"
+        >
           <h3 class="panel-section-title">Related Terms</h3>
           <div class="panel-related">
             <button
