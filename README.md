@@ -165,3 +165,18 @@ The test suite covers:
 - Metrics: CPI, stall count, bubble count, forwarding count
 - Golden scenarios: single-instruction timing, load-use stall, forwarding benefit
 - Deterministic replay: batch vs. step-by-step produce identical history
+
+---
+
+## Deploying To GitHub Pages
+
+This repo includes a GitHub Actions workflow that builds and deploys the app to
+GitHub Pages whenever you push to `main`.
+
+1. In GitHub, open **Settings → Pages**.
+2. Under **Build and deployment**, set **Source** to **GitHub Actions**.
+3. Push to `main` (or run the workflow manually from the Actions tab).
+
+The workflow publishes the Vite build output from `dist/`. The Vite config
+automatically sets the correct `base` path during GitHub Actions builds, so
+assets load correctly on Pages project URLs.
