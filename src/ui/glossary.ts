@@ -1,3 +1,6 @@
+/**
+ * Schema for one glossary card rendered in tooltip and side-panel surfaces.
+ */
 export interface GlossaryEntry {
   term: string;
   category: string;
@@ -9,6 +12,7 @@ export interface GlossaryEntry {
   relatedTerms?: string[];
 }
 
+/** Canonical glossary dictionary keyed by in-app term identifier. */
 const glossary: Record<string, GlossaryEntry> = {
   // ── Pipeline stages ──────────────────────────────────────────────────────
   IF: {
@@ -445,4 +449,5 @@ I3:              [IF] [ID] [EX] [MEM][WB]`,
   },
 };
 
+/** Shared glossary dataset used by the glossary composable and UI components. */
 export default glossary;
