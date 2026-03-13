@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { tickMachine } from "./engine";
+import { isMachineComplete, tickMachine } from "./engine";
 import { createInitialMachineState } from "./initialState";
 import { parseProgram } from "./parser";
 import type { Instruction, MachineState } from "./types";
@@ -207,6 +207,25 @@ describe("pipeline stage advancement", () => {
     const m = runCycles(createInitialMachineState(prog), 10);
     // After program completes, IF should be empty, no lingering instructions
     expect(m.stages.IF.instructionId).toBeNull();
+  });
+
+  it("reports incomplete while the pipeline is still draining", () => {
+    const prog = makeProgram("ADD R1, R2, R3");
+    const m = runCycles(createInitialMachineState(prog), 5);
+    expect(m.pc).toBe(1);
+    expect(m.stages.WB.instructionId).toBe(1);
+    expect(isMachineComplete(m)).toBe(false);
+  });
+
+  it("reports complete only after the final drain cycle", () => {
+    const prog = makeProgram("ADD R1, R2, R3");
+    const m = runCycles(createInitialMachineState(prog), 6);
+    expect(isMachineComplete(m)).toBe(true);
+  });
+
+  it("treats an empty program as already complete", () => {
+    const m = createInitialMachineState([]);
+    expect(isMachineComplete(m)).toBe(true);
   });
 });
 

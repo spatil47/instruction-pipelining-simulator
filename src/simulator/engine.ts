@@ -173,6 +173,14 @@ function getWrittenRegister(instruction: Instruction | null): string | null {
   return instruction.dst;
 }
 
+export function isMachineComplete(machine: MachineState): boolean {
+  const isProgramExhausted = machine.pc >= machine.program.length;
+  const hasInFlightInstruction = Object.values(machine.stages).some(
+    (stage) => stage.instructionId !== null,
+  );
+  return isProgramExhausted && !hasInFlightInstruction;
+}
+
 export function tickMachine(current: MachineState): MachineState {
   const nextCycle = current.cycle + 1;
   const nextRegisterFile = cloneRegisterFile(current.registerFile);
