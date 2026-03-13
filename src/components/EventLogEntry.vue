@@ -54,10 +54,11 @@ const parts = computed(() => {
 
 <style scoped>
 li {
-  font-size: 0.76rem;
+  font-size: 0.8rem;
   border-radius: 5px;
-  padding: 0.2rem 0.5rem;
+  padding: 0.28rem 0.55rem;
   font-family: monospace;
+  line-height: 1.5;
 }
 .ev-forward {
   background: #e6f9f0;
@@ -69,5 +70,11 @@ li {
 }
 .ev-tag {
   font-weight: 700;
+}
+
+@media (max-width: 600px) {
+  li {
+    font-size: 0.85rem;
+  }
 }
 </style>

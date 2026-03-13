@@ -197,12 +197,22 @@ const displayedCycle = computed(
     </header>
 
     <!-- Controls -->
-    <section class="controls-bar panel">
+    <section class="controls-bar panel" aria-label="Simulation controls">
       <div class="controls-left">
-        <button class="btn btn--icon" title="Reset" @click="handleReset">
+        <button
+          class="btn btn--icon"
+          title="Reset"
+          aria-label="Reset simulation"
+          @click="handleReset"
+        >
           ⏮
         </button>
-        <button class="btn btn--icon" title="Step forward" @click="handleStep">
+        <button
+          class="btn btn--icon"
+          title="Step forward"
+          aria-label="Step one cycle"
+          @click="handleStep"
+        >
           ⏭
         </button>
         <button class="btn btn--primary" @click="handlePlayPause">
@@ -269,10 +279,11 @@ const displayedCycle = computed(
       <h2 class="section-title">
         Pipeline Stages — Cycle {{ displayedCycle }}
       </h2>
-      <div class="stages-row">
+      <div class="stages-row" role="list" aria-label="Pipeline stages">
         <template v-for="(row, i) in displayedStages" :key="row.stage">
           <div
             class="stage-box"
+            role="listitem"
             :class="{
               'stage-box--bubble': row.slot.isBubble,
               'stage-box--occupied':
@@ -337,14 +348,17 @@ const displayedCycle = computed(
           min="1"
           :max="scrubberMax"
           class="scrubber"
+          aria-label="Timeline cycle selector"
         />
         <span class="scrub-label">C{{ scrubberMax }}</span>
-        <span
+        <button
+          type="button"
           class="scrub-live"
           :class="{ active: ui.selectedCycle === null }"
           @click="ui.selectedCycle = null"
-          >LIVE</span
         >
+          LIVE
+        </button>
       </div>
     </section>
 
@@ -376,22 +390,46 @@ const displayedCycle = computed(
 
         <section class="panel">
           <h2 class="section-title">Metrics</h2>
-          <dl class="metrics-grid">
-            <dt>Cycles</dt>
-            <dd>{{ ui.machine.metrics.cycles }}</dd>
-            <dt><GlossaryTooltip term="CPI">Committed</GlossaryTooltip></dt>
-            <dd>{{ ui.machine.metrics.committedInstructions }}</dd>
-            <dt><GlossaryTooltip term="CPI">CPI</GlossaryTooltip></dt>
-            <dd>{{ ui.machine.metrics.cpi.toFixed(2) }}</dd>
-            <dt><GlossaryTooltip term="stall">Stalls</GlossaryTooltip></dt>
-            <dd>{{ ui.machine.metrics.stallCount }}</dd>
-            <dt><GlossaryTooltip term="bubble">Bubbles</GlossaryTooltip></dt>
-            <dd>{{ ui.machine.metrics.bubbleCount }}</dd>
-            <dt>
-              <GlossaryTooltip term="forwarding">Forwards</GlossaryTooltip>
-            </dt>
-            <dd>{{ ui.machine.metrics.forwardingCount }}</dd>
-          </dl>
+          <div class="metrics-cards">
+            <div class="metric-card">
+              <span class="metric-label">Cycles</span>
+              <span class="metric-value">{{ ui.machine.metrics.cycles }}</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label"
+                ><GlossaryTooltip term="CPI">Committed</GlossaryTooltip></span
+              >
+              <span class="metric-value">{{
+                ui.machine.metrics.committedInstructions
+              }}</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label"
+                ><GlossaryTooltip term="CPI">CPI</GlossaryTooltip></span
+              >
+              <span class="metric-value">{{ ui.machine.metrics.cpi.toFixed(2) }}</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label"
+                ><GlossaryTooltip term="stall">Stalls</GlossaryTooltip></span
+              >
+              <span class="metric-value">{{ ui.machine.metrics.stallCount }}</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label"
+                ><GlossaryTooltip term="bubble">Bubbles</GlossaryTooltip></span
+              >
+              <span class="metric-value">{{ ui.machine.metrics.bubbleCount }}</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label"
+                ><GlossaryTooltip term="forwarding">Forwards</GlossaryTooltip></span
+              >
+              <span class="metric-value">{{
+                ui.machine.metrics.forwardingCount
+              }}</span>
+            </div>
+          </div>
         </section>
 
         <!-- Legend -->
@@ -439,7 +477,10 @@ const displayedCycle = computed(
         <!-- Cycle waterfall diagram -->
         <section class="panel" v-if="waterfallRows.length > 0">
           <h2 class="section-title">Pipeline Waterfall</h2>
-          <div class="waterfall-scroll">
+          <p class="waterfall-hint" aria-hidden="true">
+            Swipe horizontally to view more cycles.
+          </p>
+          <div class="waterfall-scroll" tabindex="0" aria-label="Scrollable waterfall timeline">
             <table class="waterfall">
               <thead>
                 <tr>
@@ -510,11 +551,20 @@ const displayedCycle = computed(
 
 <style scoped>
 .app {
+  --space-1: 0.4rem;
+  --space-2: 0.7rem;
+  --space-3: 1rem;
+  --space-4: 1.3rem;
+  --radius-panel: 12px;
+  --tap-target: 44px;
+  --text-sm: 0.82rem;
+  --text-body: 0.9rem;
   max-width: 1280px;
   margin: 0 auto;
-  padding: 1.2rem 1rem 3rem;
+  padding: var(--space-4) var(--space-3) 3rem;
   display: grid;
-  gap: 0.85rem;
+  gap: var(--space-2);
+  overflow-x: clip;
 }
 
 /* Header */
@@ -523,11 +573,11 @@ const displayedCycle = computed(
   align-items: flex-end;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  padding: 1rem 1.2rem;
+  gap: var(--space-1);
+  padding: var(--space-3) 1.2rem;
   background: #fff;
   border: 1px solid #dde6f0;
-  border-radius: 12px;
+  border-radius: var(--radius-panel);
 }
 .eyebrow {
   font-size: 0.72rem;
@@ -565,8 +615,8 @@ h1 {
 .panel {
   background: #fff;
   border: 1px solid #dde6f0;
-  border-radius: 12px;
-  padding: 1rem 1.1rem;
+  border-radius: var(--radius-panel);
+  padding: var(--space-3) 1.1rem;
 }
 h2.section-title {
   margin: 0 0 0.7rem;
@@ -579,26 +629,27 @@ h2.section-title {
 
 /* Controls */
 .controls-bar {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto auto 1fr;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
+  gap: var(--space-3);
 }
 .controls-left {
   display: flex;
-  gap: 0.4rem;
+  gap: var(--space-1);
   align-items: center;
 }
 .controls-speed {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: var(--space-1);
 }
 .controls-toggles {
   display: flex;
   gap: 0.8rem;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-end;
 }
 .ctrl-label {
   font-size: 0.82rem;
@@ -633,14 +684,16 @@ h2.section-title {
   border-radius: 7px;
   cursor: pointer;
   font-weight: 600;
-  font-size: 0.85rem;
-  padding: 0.38rem 0.9rem;
+  font-size: var(--text-sm);
+  min-height: var(--tap-target);
+  padding: 0.45rem 0.9rem;
   transition: background 0.15s;
 }
 .btn--icon {
   background: #eef4fb;
   color: #1a4a82;
-  padding: 0.38rem 0.7rem;
+  min-width: var(--tap-target);
+  padding: 0.45rem 0.75rem;
   font-size: 1rem;
 }
 .btn--icon:hover {
@@ -666,12 +719,14 @@ h2.section-title {
 .stages-row {
   display: flex;
   align-items: center;
-  gap: 0.3rem;
-  flex-wrap: wrap;
+  gap: var(--space-1);
+  overflow-x: auto;
+  padding-bottom: 0.15rem;
+  scrollbar-width: thin;
 }
 .stage-box {
-  flex: 1 1 100px;
-  min-width: 90px;
+  flex: 0 0 150px;
+  min-width: 150px;
   max-width: 180px;
   border-radius: 10px;
   padding: 0.65rem 0.6rem;
@@ -758,11 +813,12 @@ h2.section-title {
 .scrubber-row {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-1);
 }
 .scrubber {
   flex: 1;
   accent-color: #1589ee;
+  min-height: var(--tap-target);
 }
 .scrub-label {
   font-size: 0.78rem;
@@ -771,14 +827,15 @@ h2.section-title {
   text-align: center;
 }
 .scrub-live {
+  border: 1px solid #c0d8f0;
   font-size: 0.75rem;
   font-weight: 700;
-  padding: 0.15rem 0.5rem;
+  min-height: var(--tap-target);
+  padding: 0.2rem 0.65rem;
   border-radius: 5px;
   background: #eef4fb;
   color: #1a4a82;
   cursor: pointer;
-  border: 1px solid #c0d8f0;
 }
 .scrub-live.active {
   background: #0e9c6b;
@@ -803,7 +860,7 @@ h2.section-title {
 .program-editor {
   width: 100%;
   font-family: "JetBrains Mono", "Fira Mono", "Consolas", monospace;
-  font-size: 0.82rem;
+  font-size: var(--text-sm);
   border: 1px solid #c8d8ea;
   border-radius: 7px;
   padding: 0.5rem 0.7rem;
@@ -811,6 +868,7 @@ h2.section-title {
   resize: vertical;
   line-height: 1.6;
   color: #1a2e45;
+  min-height: 11rem;
 }
 .program-editor:focus {
   outline: none;
@@ -830,19 +888,25 @@ h2.section-title {
 }
 
 /* Metrics */
-.metrics-grid {
+.metrics-cards {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.3rem 0.8rem;
-  margin: 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.45rem;
 }
-dt {
-  font-size: 0.8rem;
+.metric-card {
+  border: 1px solid #dbe7f4;
+  border-radius: 8px;
+  padding: 0.45rem 0.55rem;
+  background: #f7fbff;
+  display: grid;
+  gap: 0.25rem;
+}
+.metric-label {
+  font-size: 0.76rem;
   color: #55708a;
 }
-dd {
-  margin: 0;
-  font-size: 0.9rem;
+.metric-value {
+  font-size: 0.94rem;
   font-weight: 700;
   color: #0c223f;
 }
@@ -858,6 +922,7 @@ dd {
 .legend li {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.5rem;
   font-size: 0.82rem;
   color: #2a435f;
@@ -894,6 +959,15 @@ dd {
 /* Waterfall */
 .waterfall-scroll {
   overflow-x: auto;
+  border: 1px solid #e0eaf4;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #f8fbff, #ffffff 42%);
+  -webkit-overflow-scrolling: touch;
+}
+.waterfall-hint {
+  margin: 0 0 0.35rem;
+  font-size: 0.74rem;
+  color: #55708a;
 }
 .waterfall {
   border-collapse: collapse;
@@ -914,6 +988,9 @@ dd {
   max-width: 200px;
   overflow: hidden;
   text-overflow: ellipsis;
+  position: sticky;
+  left: 0;
+  z-index: 2;
 }
 .wf-cycle-col {
   background: #f4f7fa;
@@ -927,11 +1004,15 @@ dd {
   font-weight: 700;
 }
 .wf-instr-label {
+  background: #ffffff;
   color: #1a2e45;
   font-family: monospace;
   max-width: 200px;
   overflow: hidden;
   text-overflow: ellipsis;
+  position: sticky;
+  left: 0;
+  z-index: 1;
 }
 .wf-cell {
   text-align: center;
@@ -959,7 +1040,7 @@ dd {
 .reg-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 0.5rem;
 }
 .reg-entry {
   display: flex;
@@ -967,7 +1048,7 @@ dd {
   align-items: center;
   background: #eef4fb;
   border-radius: 6px;
-  padding: 0.2rem 0.55rem;
+  padding: 0.3rem 0.65rem;
 }
 .reg-name {
   font-size: 0.78rem;
@@ -989,15 +1070,19 @@ dd {
   padding: 0;
   list-style: none;
   display: grid;
-  gap: 0.22rem;
+  gap: 0.35rem;
   max-height: 200px;
   overflow-y: auto;
 }
-.event-log li {
-  font-size: 0.76rem;
-  border-radius: 5px;
-  padding: 0.2rem 0.5rem;
-  font-family: monospace;
+.btn:focus-visible,
+.toggle-label input:focus-visible,
+.scrubber:focus-visible,
+.scrub-live:focus-visible,
+.waterfall-scroll:focus-visible,
+.panel-close:focus-visible,
+.related-chip:focus-visible {
+  outline: 2px solid #1589ee;
+  outline-offset: 2px;
 }
 .ev-forward {
   background: #e6f9f0;
@@ -1013,15 +1098,111 @@ dd {
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 768px) {
+  .app {
+    --space-3: 0.85rem;
+    --space-4: 1rem;
+    --text-sm: 0.86rem;
+  }
+  .app-header {
+    align-items: flex-start;
+  }
+  .header-meta {
+    width: 100%;
+  }
+  .controls-bar {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.65rem;
+  }
+  .controls-left {
+    grid-column: 1 / -1;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .controls-left .btn {
+    width: 100%;
+  }
+  .controls-speed {
+    min-width: 0;
+    width: 100%;
+  }
+  .speed-slider {
+    flex: 1;
+    min-width: 0;
+  }
+  .controls-toggles {
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+  .metrics-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 600px) {
+  .app {
+    --radius-panel: 10px;
+    --text-sm: 0.88rem;
+    --text-body: 0.96rem;
+  }
+  .panel {
+    padding: 0.85rem 0.9rem;
+  }
   .stages-row {
     gap: 0.2rem;
   }
   .stage-box {
-    min-width: 60px;
+    flex-basis: 135px;
+    min-width: 135px;
   }
-  .controls-bar {
-    gap: 0.6rem;
+  .stage-instr {
+    font-size: 0.8rem;
+  }
+  .scrubber-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 0.35rem;
+  }
+  .scrubber {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .scrub-live {
+    grid-column: 2;
+    justify-self: center;
+  }
+  .program-editor {
+    min-height: 13rem;
+    line-height: 1.75;
+  }
+  .parse-error {
+    font-size: 0.82rem;
+  }
+  .metrics-cards {
+    grid-template-columns: 1fr;
+  }
+  .reg-name,
+  .reg-val {
+    font-size: 0.84rem;
+  }
+  .event-log {
+    max-height: 240px;
+  }
+  .waterfall {
+    font-size: 0.82rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
   }
 }
 </style>

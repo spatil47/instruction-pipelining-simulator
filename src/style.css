@@ -1,4 +1,14 @@
 :root {
+  /* Breakpoint map used by component styles: 480px, 768px, 1024px */
+  --bp-phone: 480px;
+  --bp-tablet: 768px;
+  --bp-desktop: 1024px;
+  --space-1: 0.4rem;
+  --space-2: 0.7rem;
+  --space-3: 1rem;
+  --touch-target-min: 44px;
+  --font-size-body: clamp(15px, 1.65vw, 16px);
+  --font-size-small: clamp(13px, 1.3vw, 14px);
   font-family: 'Avenir Next', 'Segoe UI', sans-serif;
   color: #17202a;
   background: #f7f9fc;
@@ -11,6 +21,8 @@
 body {
   margin: 0;
   min-height: 100vh;
+  font-size: var(--font-size-body);
+  line-height: 1.5;
   background:
     radial-gradient(circle at 100% 0%, rgba(21, 137, 238, 0.08), transparent 35%),
     radial-gradient(circle at 0% 100%, rgba(28, 190, 131, 0.08), transparent 40%),
@@ -20,4 +32,18 @@ body {
 #app {
   max-width: 100%;
   padding: 0;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --space-2: 0.65rem;
+    --space-3: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --font-size-body: 16px;
+    --font-size-small: 14px;
+  }
 }

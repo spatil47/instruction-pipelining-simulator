@@ -166,6 +166,8 @@ onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
   cursor: pointer;
   color: #55708a;
   font-size: 1rem;
+  min-width: 36px;
+  min-height: 36px;
   padding: 0.1rem 0.3rem;
   border-radius: 4px;
   line-height: 1;
@@ -173,6 +175,11 @@ onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
 .panel-close:hover {
   background: #eef4fb;
   color: #0c223f;
+}
+.panel-close:focus-visible,
+.related-chip:focus-visible {
+  outline: 2px solid #1589ee;
+  outline-offset: 2px;
 }
 
 .panel-body {
@@ -251,5 +258,24 @@ onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
 }
 .related-chip:hover {
   background: #d9e8f8;
+}
+
+@media (max-width: 768px) {
+  .glossary-panel {
+    top: auto;
+    bottom: 0;
+    width: 100%;
+    max-height: 62vh;
+    border-right: 1px solid #dde6f0;
+    border-left: 1px solid #dde6f0;
+    border-radius: 12px 12px 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel-slide-enter-active,
+  .panel-slide-leave-active {
+    transition: none;
+  }
 }
 </style>
