@@ -69,7 +69,9 @@ function executeInstruction(
 ): number {
   function readSrc(reg: RegisterName | undefined): number {
     if (!reg) return 0;
-    return (reg in forwardedValues ? forwardedValues[reg] : registerFile[reg]) ?? 0;
+    return (
+      (reg in forwardedValues ? forwardedValues[reg] : registerFile[reg]) ?? 0
+    );
   }
 
   const src1Value = readSrc(instruction.src1);

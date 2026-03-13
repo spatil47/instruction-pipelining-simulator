@@ -14,7 +14,7 @@ export const DEFAULT_DEMO_PROGRAM: Instruction[] = [
     dst: "R1",
     src1: "R0",
     immediate: 0,
-    rawText: "LW R1, 0(R0)",    // load R1 from Mem[0] — triggers load-use if followed immediately
+    rawText: "LW R1, 0(R0)", // load R1 from Mem[0] — triggers load-use if followed immediately
   },
   {
     id: 2,
@@ -30,7 +30,7 @@ export const DEFAULT_DEMO_PROGRAM: Instruction[] = [
     dst: "R2",
     src1: "R1",
     src2: "R6",
-    rawText: "ADD R2, R1, R6",  // RAW on R1 (from LW) and R6 (from ADDI) — forwarding resolves R6
+    rawText: "ADD R2, R1, R6", // RAW on R1 (from LW) and R6 (from ADDI) — forwarding resolves R6
   },
   {
     id: 4,
@@ -38,7 +38,7 @@ export const DEFAULT_DEMO_PROGRAM: Instruction[] = [
     dst: "R3",
     src1: "R2",
     src2: "R6",
-    rawText: "ADD R3, R2, R6",  // RAW on R2 (from ADD above) — MEM→EX forwarding
+    rawText: "ADD R3, R2, R6", // RAW on R2 (from ADD above) — MEM→EX forwarding
   },
   {
     id: 5,
@@ -46,7 +46,7 @@ export const DEFAULT_DEMO_PROGRAM: Instruction[] = [
     src1: "R0",
     src2: "R3",
     immediate: 4,
-    rawText: "SW R3, 4(R0)",    // store result to Mem[4]
+    rawText: "SW R3, 4(R0)", // store result to Mem[4]
   },
 ];
 

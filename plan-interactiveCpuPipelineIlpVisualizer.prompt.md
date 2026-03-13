@@ -14,27 +14,27 @@ Build a Vue + TypeScript single-page app that simulates a 5-stage integer pipeli
 - [x] Implement cycle tick order: WB commit, MEM access, EX execute, ID decode/hazard check, IF fetch/PC update.
 - [x] Implement stage advancement, bubble insertion, and stall behavior with immutable snapshot output each cycle.
 - [x] Implement hazard logic: RAW detection, load-use stalls.
-- [ ] Implement forwarding paths controlled by toggles.
-- [ ] Store full cycle history and derived metrics (CPI, stalls, forwarding count).
+- [x] Implement forwarding paths controlled by toggles.
+- [x] Store full cycle history and derived metrics (CPI, stalls, forwarding count).
 
 - [ ] Phase 3: CPU internals visualization
 - [x] Render per-stage instruction occupancy per cycle.
 - [x] Build initial interactive CPU/pipeline snapshot view.
 - [ ] Animate data movement (operand read, ALU result, memory transfer, writeback).
-- [ ] Overlay hazards/forwarding directly on datapath (bubble markers, bypass arrows, stall labels).
-- [ ] Add side views for register deltas, memory deltas, and event log.
+- [x] Overlay hazards/forwarding directly on datapath (bubble markers, bypass arrows, stall labels).
+- [x] Add side views for register deltas, memory deltas, and event log.
 
-- [ ] Phase 4: Interactivity and controls
-- [ ] Add Play, Pause, Step, Reset controls.
-- [ ] Add speed slider for tick cadence.
-- [ ] Add editable machine-code program editor with inline parse errors and apply/load flow.
-- [ ] Add cycle timeline scrubber bound to history snapshots.
-- [ ] Add forwarding/hazard toggles and deterministic rerun when settings change.
+- [x] Phase 4: Interactivity and controls
+- [x] Add Play, Pause, Step, Reset controls.
+- [x] Add speed slider for tick cadence.
+- [x] Add editable machine-code program editor with inline parse errors and apply/load flow.
+- [x] Add cycle timeline scrubber bound to history snapshots.
+- [x] Add forwarding/hazard toggles and deterministic rerun when settings change.
 
-- [ ] Phase 5: Demo and UX polish
-- [ ] Ship default demo program showing ILP, load-use hazard, and forwarding benefit.
-- [ ] Add legend/onboarding for stage colors, bubbles, and bypass arrows.
-- [ ] Ensure responsive behavior on desktop/mobile with readable diagram and controls.
+- [x] Phase 5: Demo and UX polish
+- [x] Ship default demo program showing ILP, load-use hazard, and forwarding benefit.
+- [x] Add legend/onboarding for stage colors, bubbles, and bypass arrows.
+- [x] Ensure responsive behavior on desktop/mobile with readable diagram and controls.
 
 - [ ] Phase 6: Verification
 - [ ] Unit-test parser, stage transitions, hazards, and forwarding.
@@ -61,14 +61,14 @@ Build a Vue + TypeScript single-page app that simulates a 5-stage integer pipeli
 - [x] `feat(parser): add machine-code parser and validation`
 - [x] `feat(simulator): implement 5-stage tick and pipeline advancement`
 - [x] `feat(hazards): add RAW/load-use stall handling`
-- [ ] `feat(forwarding): add configurable forwarding paths`
-- [ ] `feat(history): add immutable cycle snapshots and metrics`
+- [x] `feat(forwarding): add configurable forwarding paths`
+- [x] `feat(history): add immutable cycle snapshots and metrics`
 - [x] `feat(ui-diagram): render cpu internals and stage occupancy`
-- [ ] `feat(ui-controls): add play pause step reset and speed control`
-- [ ] `feat(ui-program-editor): add editable machine-code input`
-- [ ] `feat(ui-timeline): add cycle scrubber bound to history`
-- [ ] `feat(ui-overlays): add hazard and forwarding visual overlays`
-- [ ] `feat(demo): add default ilp demo program and legend`
+- [x] `feat(ui-controls): add play pause step reset and speed control`
+- [x] `feat(ui-program-editor): add editable machine-code input`
+- [x] `feat(ui-timeline): add cycle scrubber bound to history`
+- [x] `feat(ui-overlays): add hazard and forwarding visual overlays`
+- [x] `feat(demo): add default ilp demo program and legend`
 - [ ] `test(core): add parser, hazard, forwarding, and snapshot tests`
 - [ ] `docs(readme): add usage and simulation behavior notes`
 

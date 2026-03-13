@@ -1,5 +1,8 @@
 import { tickMachine } from "../simulator/engine";
-import { createInitialMachineState, DEFAULT_DEMO_PROGRAM } from "../simulator/initialState";
+import {
+  createInitialMachineState,
+  DEFAULT_DEMO_PROGRAM,
+} from "../simulator/initialState";
 import type { ParseError } from "../simulator/parser";
 import { parseProgram } from "../simulator/parser";
 import type { MachineState, SimulationConfig } from "../simulator/types";
@@ -48,7 +51,9 @@ export function resetSimulation(state: VisualizerUiState): void {
   const { instructions, errors } = parseProgram(state.programText);
   state.parseErrors = errors;
   if (errors.length === 0) {
-    state.machine = createInitialMachineState(instructions.length > 0 ? instructions : undefined);
+    state.machine = createInitialMachineState(
+      instructions.length > 0 ? instructions : undefined,
+    );
   } else {
     state.machine = createInitialMachineState();
   }
@@ -81,11 +86,16 @@ export function applyProgram(state: VisualizerUiState): void {
     state.intervalId = null;
     state.isRunning = false;
   }
-  state.machine = createInitialMachineState(instructions.length > 0 ? instructions : undefined);
+  state.machine = createInitialMachineState(
+    instructions.length > 0 ? instructions : undefined,
+  );
   state.selectedCycle = null;
 }
 
-export function applyConfig(state: VisualizerUiState, config: Partial<SimulationConfig>): void {
+export function applyConfig(
+  state: VisualizerUiState,
+  config: Partial<SimulationConfig>,
+): void {
   const wasRunning = state.isRunning;
   stopPlay(state);
   // Rebuild simulation with updated config so history is consistent.
