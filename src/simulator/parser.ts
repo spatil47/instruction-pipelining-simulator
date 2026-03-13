@@ -28,7 +28,9 @@ const MEMORY_PATTERN = /^(-?\d+)\((R(?:[0-9]|[12][0-9]|3[01]))\)$/;
 
 function parseRegister(token: string): RegisterName | null {
   const normalized = token.trim().toUpperCase();
-  return REGISTER_PATTERN.test(normalized) ? (normalized as RegisterName) : null;
+  return REGISTER_PATTERN.test(normalized)
+    ? (normalized as RegisterName)
+    : null;
 }
 
 function parseOpcode(token: string): Opcode | null {
@@ -44,7 +46,10 @@ function parseImmediate(token: string): number | null {
   return Number.parseInt(token.trim(), 10);
 }
 
-function splitInstruction(rawLine: string): { opcodeToken: string; argTokens: string[] } {
+function splitInstruction(rawLine: string): {
+  opcodeToken: string;
+  argTokens: string[];
+} {
   const withoutComment = rawLine.split("#")[0].trim();
 
   if (!withoutComment) {
