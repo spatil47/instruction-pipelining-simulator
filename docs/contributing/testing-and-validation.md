@@ -39,6 +39,11 @@ Provide a repeatable quality gate for contributors making simulator, UI, or docu
 3. Navigation from `docs/README.md` reaches all referenced pages.
 4. Coverage matrix is updated when symbols change.
 
+## Export Comment Guardrail
+1. If you add, remove, or change an exported symbol in `src/`, update that symbol's TSDoc in the same commit.
+2. Treat in-code TSDoc as API source of truth; module docs should summarize and link back to source.
+3. Re-run the checklist in `docs/reference/tsdoc-export-checklist.md` before merging API-affecting changes.
+
 ## Troubleshooting
 - Build fails after docs edits:
   - inspect for accidental code-file edits or malformed fenced blocks copied into code files.
