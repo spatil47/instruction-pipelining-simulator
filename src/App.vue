@@ -2,6 +2,10 @@
 import { computed, onUnmounted, reactive, watch } from "vue";
 
 import { PIPELINE_STAGES } from "./simulator/types";
+import GlossaryTooltip from "./components/GlossaryTooltip.vue";
+import GlossaryPanel from "./components/GlossaryPanel.vue";
+import InstructionText from "./components/InstructionText.vue";
+import EventLogEntry from "./components/EventLogEntry.vue";
 import type { CycleSnapshot } from "./simulator/types";
 import {
   applyConfig,
@@ -229,7 +233,7 @@ const displayedCycle = computed(
               )
             "
           />
-          Forwarding
+          <GlossaryTooltip term="enableForwarding">Forwarding</GlossaryTooltip>
         </label>
         <label class="toggle-label">
           <input
@@ -242,7 +246,7 @@ const displayedCycle = computed(
               )
             "
           />
-          RAW detection
+          <GlossaryTooltip term="RAW">RAW</GlossaryTooltip> detection
         </label>
         <label class="toggle-label">
           <input
@@ -255,7 +259,7 @@ const displayedCycle = computed(
               )
             "
           />
-          Load-use detection
+          <GlossaryTooltip term="LOAD_USE">Load-use</GlossaryTooltip> detection
         </label>
       </div>
     </section>
@@ -283,8 +287,8 @@ const displayedCycle = computed(
               ),
             }"
           >
-            <span class="stage-name">{{ row.stage }}</span>
-            <span class="stage-instr">{{ row.label }}</span>
+            <GlossaryTooltip :term="row.stage"><span class="stage-name">{{ row.stage }}</span></GlossaryTooltip>
+            <span class="stage-instr"><InstructionText :raw-text="row.label" /></span>
           </div>
           <div v-if="i < displayedStages.length - 1" class="stage-arrow">→</div>
         </template>
@@ -371,15 +375,15 @@ const displayedCycle = computed(
           <dl class="metrics-grid">
             <dt>Cycles</dt>
             <dd>{{ ui.machine.metrics.cycles }}</dd>
-            <dt>Committed</dt>
+            <dt><GlossaryTooltip term="CPI">Committed</GlossaryTooltip></dt>
             <dd>{{ ui.machine.metrics.committedInstructions }}</dd>
-            <dt>CPI</dt>
+            <dt><GlossaryTooltip term="CPI">CPI</GlossaryTooltip></dt>
             <dd>{{ ui.machine.metrics.cpi.toFixed(2) }}</dd>
-            <dt>Stalls</dt>
+            <dt><GlossaryTooltip term="stall">Stalls</GlossaryTooltip></dt>
             <dd>{{ ui.machine.metrics.stallCount }}</dd>
-            <dt>Bubbles</dt>
+            <dt><GlossaryTooltip term="bubble">Bubbles</GlossaryTooltip></dt>
             <dd>{{ ui.machine.metrics.bubbleCount }}</dd>
-            <dt>Forwards</dt>
+            <dt><GlossaryTooltip term="forwarding">Forwards</GlossaryTooltip></dt>
             <dd>{{ ui.machine.metrics.forwardingCount }}</dd>
           </dl>
         </section>
@@ -392,26 +396,25 @@ const displayedCycle = computed(
               <span class="swatch swatch--occupied"></span> Active instruction
             </li>
             <li>
-              <span class="swatch swatch--bubble"></span> Bubble (inserted
-              stall)
+              <span class="swatch swatch--bubble"></span>
+              <GlossaryTooltip term="bubble">Bubble</GlossaryTooltip> (inserted stall)
             </li>
             <li><span class="swatch swatch--empty"></span> Empty stage</li>
             <li>
-              <span class="swatch swatch--forward"></span> Forwarding
-              destination
+              <span class="swatch swatch--forward"></span>
+              <GlossaryTooltip term="forwarding">Forwarding</GlossaryTooltip> destination
             </li>
             <li>
-              <span class="swatch swatch--stall"></span> Stall detected here
+              <span class="swatch swatch--stall"></span>
+              <GlossaryTooltip term="stall">Stall</GlossaryTooltip> detected here
             </li>
             <li>
               <span class="tag tag--fwd" style="font-size: 0.7rem">FWD</span>
-              MEM→EX bypass
+              <GlossaryTooltip term="MEM_EX_Forward">MEM→EX bypass</GlossaryTooltip>
             </li>
             <li>
-              <span class="tag tag--stall" style="font-size: 0.7rem"
-                >STALL</span
-              >
-              RAW / load-use stall
+              <span class="tag tag--stall" style="font-size: 0.7rem">STALL</span>
+              <GlossaryTooltip term="RAW">RAW</GlossaryTooltip> / <GlossaryTooltip term="LOAD_USE">load-use</GlossaryTooltip> stall
             </li>
           </ul>
         </section>
@@ -440,7 +443,7 @@ const displayedCycle = computed(
               <tbody>
                 <tr v-for="row in waterfallRows" :key="row.instr.id">
                   <td class="wf-instr-label" :title="row.instr.rawText">
-                    {{ row.instr.rawText }}
+                    <InstructionText :raw-text="row.instr.rawText" />
                   </td>
                   <td
                     v-for="(cell, ci) in row.cells"
@@ -454,7 +457,7 @@ const displayedCycle = computed(
                     }"
                     :title="cell.stage || ''"
                   >
-                    {{ cell.stage }}
+                    <GlossaryTooltip v-if="cell.stage" :term="cell.stage">{{ cell.stage }}</GlossaryTooltip>
                   </td>
                 </tr>
               </tbody>
@@ -480,17 +483,16 @@ const displayedCycle = computed(
         <section class="panel" v-if="eventLog.length > 0">
           <h2 class="section-title">Event Log</h2>
           <ul class="event-log">
-            <li
+            <EventLogEntry
               v-for="(ev, i) in eventLog"
               :key="i"
-              :class="ev.kind === 'forward' ? 'ev-forward' : 'ev-hazard'"
-            >
-              {{ ev.text }}
-            </li>
+              :ev="ev"
+            />
           </ul>
         </section>
       </div>
     </div>
+    <GlossaryPanel />
   </div>
 </template>
 
