@@ -1,4 +1,4 @@
-import { tickMachine } from "../simulator/engine";
+import { isMachineComplete, tickMachine } from "../simulator/engine";
 import {
   createInitialMachineState,
   DEFAULT_DEMO_PROGRAM,
@@ -35,6 +35,10 @@ export function createInitialUiState(): VisualizerUiState {
 }
 
 export function stepForward(state: VisualizerUiState): void {
+  if (isMachineComplete(state.machine)) {
+    return;
+  }
+
   state.machine = tickMachine(state.machine);
   // If user was viewing a historical cycle, keep their position; otherwise stay at live.
   if (state.selectedCycle === null) {
@@ -61,10 +65,13 @@ export function resetSimulation(state: VisualizerUiState): void {
 }
 
 export function startPlay(state: VisualizerUiState): void {
-  if (state.isRunning) return;
+  if (state.isRunning || isMachineComplete(state.machine)) return;
   state.isRunning = true;
   state.intervalId = setInterval(() => {
     state.machine = tickMachine(state.machine);
+    if (isMachineComplete(state.machine)) {
+      stopPlay(state);
+    }
   }, state.tickMs);
 }
 
