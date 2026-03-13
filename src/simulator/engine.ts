@@ -1,5 +1,6 @@
 import type {
   CycleSnapshot,
+  ForwardingEvent,
   HazardEvent,
   Instruction,
   MachineState,
@@ -7,6 +8,7 @@ import type {
   PipelineStage,
   PipelineState,
   RegisterFile,
+  RegisterName,
   StageState,
 } from "./types";
 
@@ -63,9 +65,15 @@ function readRegister(
 function executeInstruction(
   instruction: Instruction,
   registerFile: RegisterFile,
+  forwardedValues: Partial<Record<string, number>> = {},
 ): number {
-  const src1Value = readRegister(registerFile, instruction.src1);
-  const src2Value = readRegister(registerFile, instruction.src2);
+  function readSrc(reg: RegisterName | undefined): number {
+    if (!reg) return 0;
+    return (reg in forwardedValues ? forwardedValues[reg] : registerFile[reg]) ?? 0;
+  }
+
+  const src1Value = readSrc(instruction.src1);
+  const src2Value = readSrc(instruction.src2);
 
   switch (instruction.opcode) {
     case "ADD":
@@ -116,6 +124,7 @@ function createSnapshot(
   registerFile: RegisterFile,
   memoryDeltas: MemoryDelta[],
   hazards: HazardEvent[],
+  forwarding: ForwardingEvent[],
 ): CycleSnapshot {
   return {
     cycle,
@@ -124,7 +133,7 @@ function createSnapshot(
     registerFile: cloneRegisterFile(registerFile),
     memoryDeltas,
     hazards,
-    forwarding: [],
+    forwarding,
   };
 }
 
@@ -169,6 +178,7 @@ export function tickMachine(current: MachineState): MachineState {
   const nextTransientResults = { ...current.transientResults };
   const memoryDeltas: MemoryDelta[] = [];
   const hazards: HazardEvent[] = [];
+  const forwardingEvents: ForwardingEvent[] = [];
 
   const wbInstruction = getInstructionById(
     current.program,
@@ -201,10 +211,32 @@ export function tickMachine(current: MachineState): MachineState {
     current.program,
     current.stages.EX.instructionId,
   );
+
+  // Compute MEM→EX forwarding: result computed last cycle (now in MEM) forwarded to EX.
+  const forwardedValues: Partial<Record<string, number>> = {};
+  if (current.config.enableForwarding && exInstruction) {
+    const exReads = getReadRegisters(exInstruction);
+    const memWriteDst = getWrittenRegister(memInstruction);
+    if (memWriteDst && exReads.has(memWriteDst)) {
+      const forwardedValue = nextTransientResults[memInstruction!.id];
+      if (forwardedValue !== undefined) {
+        forwardedValues[memWriteDst] = forwardedValue;
+        forwardingEvents.push({
+          cycle: nextCycle,
+          fromStage: "MEM",
+          toStage: "EX",
+          register: memWriteDst as RegisterName,
+          value: forwardedValue,
+        });
+      }
+    }
+  }
+
   if (exInstruction) {
     nextTransientResults[exInstruction.id] = executeInstruction(
       exInstruction,
       nextRegisterFile,
+      forwardedValues,
     );
   }
 
@@ -215,7 +247,6 @@ export function tickMachine(current: MachineState): MachineState {
   const idReads = getReadRegisters(idInstruction);
   const exWriteRegister = getWrittenRegister(exInstruction);
   const memWriteRegister = getWrittenRegister(memInstruction);
-  const wbWriteRegister = getWrittenRegister(wbInstruction);
 
   const hasLoadUseHazard =
     current.config.detectLoadUseHazards &&
@@ -223,10 +254,11 @@ export function tickMachine(current: MachineState): MachineState {
     !!exWriteRegister &&
     idReads.has(exWriteRegister);
 
+  // Only stall for EX and MEM pending writes; WB already committed to registerFile at step 1.
   const hasRawHazardWithoutForwarding =
     current.config.detectRawHazards &&
     !current.config.enableForwarding &&
-    [exWriteRegister, memWriteRegister, wbWriteRegister].some(
+    [exWriteRegister, memWriteRegister].some(
       (pendingWrite) => !!pendingWrite && idReads.has(pendingWrite),
     );
 
@@ -292,6 +324,7 @@ export function tickMachine(current: MachineState): MachineState {
     nextRegisterFile,
     memoryDeltas,
     hazards,
+    forwardingEvents,
   );
   const history = [...current.history, snapshot];
 
@@ -313,6 +346,8 @@ export function tickMachine(current: MachineState): MachineState {
       bubbleCount:
         current.metrics.bubbleCount +
         Object.values(nextStages).filter((stage) => stage.isBubble).length,
+      forwardingCount:
+        current.metrics.forwardingCount + forwardingEvents.length,
     },
   };
 }
