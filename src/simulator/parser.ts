@@ -1,11 +1,13 @@
 import type { Instruction, Opcode, RegisterName } from "./types";
 
+/** Parse error tied to one source line from the user program text. */
 export interface ParseError {
   line: number;
   message: string;
   source: string;
 }
 
+/** Result of parsing a full program; valid instructions may coexist with errors. */
 export interface ParseProgramResult {
   instructions: Instruction[];
   errors: ParseError[];
@@ -50,6 +52,7 @@ function splitInstruction(rawLine: string): {
   opcodeToken: string;
   argTokens: string[];
 } {
+  // The parser treats trailing comments as non-semantic text.
   const withoutComment = rawLine.split("#")[0].trim();
 
   if (!withoutComment) {
@@ -169,6 +172,15 @@ function parseLoadStore(
     : { id, opcode, src1: base, src2: register, immediate, rawText };
 }
 
+/**
+ * Parses assembly-like program text into instruction objects.
+ *
+ * The parser is intentionally partial-success: lines that parse correctly are
+ * preserved even when other lines produce diagnostics.
+ *
+ * @param programText Multi-line user program input.
+ * @returns Parsed instructions plus non-throwing parse diagnostics.
+ */
 export function parseProgram(programText: string): ParseProgramResult {
   const instructions: Instruction[] = [];
   const errors: ParseError[] = [];
@@ -208,6 +220,7 @@ export function parseProgram(programText: string): ParseProgramResult {
       return;
     }
 
+    // Opcode dispatch keeps instruction-ID assignment monotonic for successes only.
     let parsed: Instruction | ParseError;
 
     if (["ADD", "SUB", "AND", "OR", "XOR"].includes(opcode)) {
