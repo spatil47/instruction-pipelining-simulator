@@ -40,7 +40,7 @@ Build a Vue + TypeScript single-page app that simulates a 5-stage integer pipeli
 - [x] Unit-test parser, stage transitions, hazards, and forwarding.
 - [x] Add golden cycle-by-cycle scenarios with forwarding on/off.
 - [x] Verify deterministic replay: stepping and scrubbing always match stored snapshots.
-- [ ] Manual-check control synchronization and datapath highlight correctness.
+- [x] Manual-check control synchronization and datapath highlight correctness.
 - [ ] Validate responsive layout at multiple viewport widths.
 
 ### Commit Workflow

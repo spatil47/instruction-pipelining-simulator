@@ -40,10 +40,8 @@ export function stepForward(state: VisualizerUiState): void {
   }
 
   state.machine = tickMachine(state.machine);
-  // If user was viewing a historical cycle, keep their position; otherwise stay at live.
-  if (state.selectedCycle === null) {
-    // remain at live
-  }
+  // Step always advances the live machine; snap timeline back to live.
+  state.selectedCycle = null;
 }
 
 export function resetSimulation(state: VisualizerUiState): void {
@@ -66,6 +64,8 @@ export function resetSimulation(state: VisualizerUiState): void {
 
 export function startPlay(state: VisualizerUiState): void {
   if (state.isRunning || isMachineComplete(state.machine)) return;
+  // Playback is always tied to the latest cycle, not a scrubbed historical one.
+  state.selectedCycle = null;
   state.isRunning = true;
   state.intervalId = setInterval(() => {
     state.machine = tickMachine(state.machine);

@@ -73,4 +73,41 @@ describe("ui state completion behavior", () => {
     expect(state.isRunning).toBe(false);
     expect(state.intervalId).toBeNull();
   });
+
+  it("stepForward returns timeline selection to live", () => {
+    const state = createInitialUiState();
+    state.machine = createInitialMachineState(
+      makeProgram("ADD R1, R2, R3\nADD R4, R1, R5"),
+    );
+
+    stepForward(state);
+    stepForward(state);
+    const before = state.machine.cycle;
+
+    state.selectedCycle = 1;
+    stepForward(state);
+
+    expect(state.machine.cycle).toBe(before + 1);
+    expect(state.selectedCycle).toBeNull();
+  });
+
+  it("startPlay returns timeline selection to live", () => {
+    vi.useFakeTimers();
+
+    const state = createInitialUiState();
+    state.machine = createInitialMachineState(
+      makeProgram("ADD R1, R2, R3\nADD R4, R1, R5"),
+    );
+    state.tickMs = 1;
+
+    stepForward(state);
+    state.selectedCycle = 1;
+
+    startPlay(state);
+    expect(state.isRunning).toBe(true);
+    expect(state.selectedCycle).toBeNull();
+
+    vi.advanceTimersByTime(1);
+    expect(state.machine.cycle).toBeGreaterThan(1);
+  });
 });
