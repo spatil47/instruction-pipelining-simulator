@@ -606,6 +606,7 @@ const displayedCycle = computed(
   --text-sm: 0.82rem;
   --text-body: 0.9rem;
   max-width: 1280px;
+  width: 100%;
   margin: 0 auto;
   padding: var(--space-4) var(--space-3) 3rem;
   display: grid;
@@ -616,6 +617,7 @@ const displayedCycle = computed(
 .app-main {
   display: grid;
   gap: var(--space-2);
+  min-width: 0;
 }
 
 .sr-only {
@@ -641,6 +643,11 @@ const displayedCycle = computed(
   background: #fff;
   border: 1px solid #dde6f0;
   border-radius: var(--radius-panel);
+  min-width: 0;
+}
+
+.header-title {
+  min-width: 0;
 }
 .eyebrow {
   font-size: 0.72rem;
@@ -654,6 +661,7 @@ h1 {
   margin: 0.2rem 0 0;
   font-size: clamp(1.3rem, 2.8vw, 1.8rem);
   color: #0c223f;
+  overflow-wrap: anywhere;
 }
 .header-meta {
   display: flex;
@@ -680,6 +688,7 @@ h1 {
   border: 1px solid #dde6f0;
   border-radius: var(--radius-panel);
   padding: var(--space-3) 1.1rem;
+  min-width: 0;
 }
 h2.section-title {
   margin: 0 0 0.7rem;
@@ -696,16 +705,19 @@ h2.section-title {
   grid-template-columns: auto auto 1fr;
   align-items: center;
   gap: var(--space-3);
+  min-width: 0;
 }
 .controls-left {
   display: flex;
   gap: var(--space-1);
   align-items: center;
+  min-width: 0;
 }
 .controls-speed {
   display: flex;
   align-items: center;
   gap: var(--space-1);
+  min-width: 0;
 }
 .controls-toggles {
   display: flex;
@@ -713,6 +725,7 @@ h2.section-title {
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
+  min-width: 0;
 }
 .ctrl-label {
   font-size: 0.82rem;
@@ -736,6 +749,8 @@ h2.section-title {
   color: #2a435f;
   cursor: pointer;
   user-select: none;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .toggle-label input {
   accent-color: #1589ee;
@@ -786,6 +801,7 @@ h2.section-title {
   overflow-x: auto;
   padding-bottom: 0.15rem;
   scrollbar-width: thin;
+  max-width: 100%;
 }
 .stage-box {
   flex: 0 0 150px;
@@ -877,6 +893,7 @@ h2.section-title {
   display: flex;
   align-items: center;
   gap: var(--space-1);
+  min-width: 0;
 }
 .scrubber {
   flex: 1;
@@ -909,19 +926,22 @@ h2.section-title {
 /* Main two-column grid */
 .main-grid {
   display: grid;
-  grid-template-columns: 340px 1fr;
+  grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
   gap: 0.85rem;
   align-items: start;
+  min-width: 0;
 }
 .left-col,
 .right-col {
   display: grid;
   gap: 0.85rem;
+  min-width: 0;
 }
 
 /* Program editor */
 .program-editor {
   width: 100%;
+  max-width: 100%;
   font-family: "JetBrains Mono", "Fira Mono", "Consolas", monospace;
   font-size: var(--text-sm);
   border: 1px solid #c8d8ea;
@@ -1022,6 +1042,7 @@ h2.section-title {
 /* Waterfall */
 .waterfall-scroll {
   overflow-x: auto;
+  max-width: 100%;
   border: 1px solid #e0eaf4;
   border-radius: 8px;
   background: linear-gradient(90deg, #f8fbff, #ffffff 42%);
