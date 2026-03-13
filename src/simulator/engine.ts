@@ -151,7 +151,11 @@ function getReadRegisters(instruction: Instruction | null): Set<string> {
 }
 
 function getWrittenRegister(instruction: Instruction | null): string | null {
-  if (!instruction?.dst || instruction.opcode === "SW" || instruction.opcode === "NOP") {
+  if (
+    !instruction?.dst ||
+    instruction.opcode === "SW" ||
+    instruction.opcode === "NOP"
+  ) {
     return null;
   }
 
@@ -244,14 +248,15 @@ export function tickMachine(current: MachineState): MachineState {
       cycle: nextCycle,
       type: "RAW",
       stage: "ID",
-      description: "RAW dependency detected with forwarding disabled; inserted stall bubble.",
+      description:
+        "RAW dependency detected with forwarding disabled; inserted stall bubble.",
       blockedInstructionId: idInstruction.id,
     });
   }
 
   const fetchedInstruction = shouldStall
     ? null
-    : current.program[current.pc] ?? null;
+    : (current.program[current.pc] ?? null);
   const nextPc = shouldStall
     ? current.pc
     : fetchedInstruction
